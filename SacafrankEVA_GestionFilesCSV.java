@@ -24,6 +24,8 @@ public class SacafrankEVA_GestionFilesCSV {
             // variables globales
             String contenido, alerta = " ";
             double fin1, fin2;
+            // Variables para contar los estudiantes
+            double nroRendir1 = 0, nroRendir2 = 0, nroRendir12 = 0, nroTrabajos = 0;
             // creacion del nuevo archivo que contendra el los totales
             Formatter newFile = new Formatter
                     ("/home/franjo18/Documentos/caliFinally.csv", "US-ASCII", ingles);
@@ -79,6 +81,10 @@ public class SacafrankEVA_GestionFilesCSV {
                             Double.valueOf(tokens[7]) + Double.valueOf(tokens[8]) + Double.valueOf(tokens[9]) +
                             Double.valueOf(tokens[10]);
                 }
+                nroRendir1 += (alerta.equals("Rendir final 1"))?1:0;
+                nroRendir2 += (alerta.equals("Rendir final 2"))?1:0;
+                nroRendir12 += (alerta.equals("Rendir final 1 y 2"))?1:0;
+                nroTrabajos += (alerta.equals("Reprobado Falta Trabajo"))?1:0;
                 // al dar un resultado superior a 40 se cambia ese 40
                 total = (total > 40)?40:total;
                 // calculo de la promocion
@@ -169,14 +175,19 @@ public class SacafrankEVA_GestionFilesCSV {
             Formatter orderByPromo = new Formatter
                     ("/home/franjo18/Documentos/SacaFrankBdEst_OrdenPromo.csv", "US-ASCII", ingles);
             // Recorrido de cada fila del archivo
+            double nroReprobado = 0, nroAprobado = 0;
             while (lista.hasNext()){
                 contenido = lista.nextLine();
                 String[] tokens = contenido.split(";");
                 // en caso sea aprobado agregelo al inicio si no agregelo despues
                 if(tokens[15].equals("Aprobado")){
                     values3.addFirst(contenido);
+                    // contador de Aprobados
+                    nroAprobado++;
                 }else {
                     values3.addLast(contenido);
+                    // Contador de reprobados
+                    nroReprobado++;
                 }
             }
             // paso a un iterador la lista
@@ -188,6 +199,10 @@ public class SacafrankEVA_GestionFilesCSV {
             }
             // cierre del archivo
             orderByPromo.close();
+            System.out.printf("Estudiantes aprobados: %.0f%%\nEstudiantes reprobados: %.0f%%\nEstudiantes Final 1: %.0f%%" +
+                    "\nEstudiantes Final 2: %.0f%%\nEstudiantes Final 1 y 2: %.0f%%\nEstudiantes reprobados por trabajo: %.0f%%",
+                    (nroAprobado*100)/students.length,(nroReprobado*100)/students.length,(nroRendir1*100)/students.length
+                    ,(nroRendir2*100)/students.length,(nroRendir12*100)/students.length , (nroTrabajos*100)/students.length);
         } catch (Exception e) {
             System.out.println("Fatal error: " + e);
         }
